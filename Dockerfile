@@ -16,4 +16,5 @@ EXPOSE 8000
 
 # 긴 녹취 처리는 백그라운드 스레드에서 도므로 워커 1개로 충분.
 # 작업 상태는 파일에 저장되어 재시작에도 안전.
-CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8000", "--timeout", "120", "web.app:app"]
+# PORT 환경변수가 있으면 그 포트에 바인딩(Render 등), 없으면 8000(로컬/OCI).
+CMD ["sh", "-c", "exec gunicorn -w 1 -b 0.0.0.0:${PORT:-8000} --timeout 120 web.app:app"]

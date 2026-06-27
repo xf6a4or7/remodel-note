@@ -1,0 +1,23 @@
+# Render Blueprint — 이 레포를 Render에 자동 배포하기 위한 설정.
+# Render 대시보드에서 New + → Blueprint → 이 레포 선택하면 아래 설정대로 만들어집니다.
+services:
+  - type: web
+    name: remodel-note
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      # 접속 비밀번호 (직접 정해서 Render 대시보드에 입력)
+      - key: APP_PASSWORD
+        sync: false
+      # 네이버 CLOVA Speech
+      - key: CLOVA_SPEECH_INVOKE_URL
+        sync: false
+      - key: CLOVA_SPEECH_SECRET
+        sync: false
+      # Anthropic Claude
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # STT 엔진 (clova 고정)
+      - key: STT_ENGINE
+        value: clova

@@ -54,12 +54,19 @@ DOWNLOADABLE = {
 # ---------- 인증 ----------
 @app.before_request
 def _require_password():
+    if request.path == "/healthz":
+        return  # 상태 점검(호스팅 헬스체크)은 인증 없이 통과
     if not APP_PASSWORD:
         return  # 비번 미설정이면 잠그지 않음 (로컬 테스트용)
     auth = request.authorization
     if not auth or auth.password != APP_PASSWORD:
         return Response("로그인이 필요합니다.", 401,
                         {"WWW-Authenticate": 'Basic realm="remodel-note"'})
+
+
+@app.get("/healthz")
+def healthz():
+    return "ok", 200
 
 
 # ---------- 작업 상태 파일 ----------

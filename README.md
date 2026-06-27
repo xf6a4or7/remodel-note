@@ -81,8 +81,12 @@ APP_PASSWORD=원하는비번 gunicorn -w 1 -b 0.0.0.0:8000 web.app:app
 
 - 업로드 즉시 처리 화면으로 이동하고, 긴 녹취도 백그라운드로 처리됩니다.
 - `APP_PASSWORD` 를 설정하면 접속 시 비밀번호로 잠깁니다(인터넷 공개 시 필수).
-- Docker로도 실행 가능(`Dockerfile` 포함).
-- 오라클 클라우드(OCI) **무료 서버**에 올리는 단계별 안내: **[docs/DEPLOY_OCI.md](docs/DEPLOY_OCI.md)**
+- Docker로도 실행 가능(`Dockerfile` 포함). `PORT` 환경변수가 있으면 그 포트에 바인딩됩니다.
+
+### 무료 배포
+
+- **Render (추천 · 신용카드 불필요 · HTTPS 자동)**: **[docs/DEPLOY_RENDER.md](docs/DEPLOY_RENDER.md)** — 레포의 `render.yaml`로 거의 원클릭 배포.
+- 오라클 클라우드(OCI) 무료 서버: **[docs/DEPLOY_OCI.md](docs/DEPLOY_OCI.md)**
 
 ## 용어 사전
 
