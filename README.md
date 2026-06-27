@@ -69,6 +69,21 @@ pip install -r requirements-dev.txt
 pytest                       # 사전 치환·전사본 직렬화·docx 생성·분석 파싱 검증 (API 미사용)
 ```
 
+## 웹으로 쓰기 (서버 배포)
+
+터미널 없이 브라우저(폰/PC)에서 녹취를 올리고 회의록을 받는 웹 페이지가 있습니다.
+
+```bash
+pip install -r requirements-web.txt
+APP_PASSWORD=원하는비번 gunicorn -w 1 -b 0.0.0.0:8000 web.app:app
+# 브라우저에서 http://<서버주소>:8000 접속 → 업로드 → 다운로드
+```
+
+- 업로드 즉시 처리 화면으로 이동하고, 긴 녹취도 백그라운드로 처리됩니다.
+- `APP_PASSWORD` 를 설정하면 접속 시 비밀번호로 잠깁니다(인터넷 공개 시 필수).
+- Docker로도 실행 가능(`Dockerfile` 포함).
+- 오라클 클라우드(OCI) **무료 서버**에 올리는 단계별 안내: **[docs/DEPLOY_OCI.md](docs/DEPLOY_OCI.md)**
+
 ## 용어 사전
 
 `config/glossary.json` 에 현장 용어 오인식 교정 규칙이 있습니다.
@@ -88,6 +103,9 @@ remodel-note/
 │  ├─ analyze.py          구조화 분석
 │  ├─ docgen.py           회의록 docx 생성
 │  └─ pipeline.py         전체 오케스트레이션
+├─ web/app.py             웹 업로드 서버 (Flask)
+├─ Dockerfile             컨테이너 배포용
+├─ docs/DEPLOY_OCI.md     OCI 무료 서버 배포 가이드
 ├─ examples/              샘플 전사본 (오프라인 체험용)
 ├─ tests/                 pytest (API 미사용)
 ├─ audio/                 입력 음성 (git 제외)
