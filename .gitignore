@@ -1,0 +1,30 @@
+# ===== 민감 정보: 절대 커밋 금지 =====
+.env
+*.key
+
+# ===== 고객 녹취 및 산출물 (개인정보 보호) =====
+audio/*
+transcripts/*
+output/*
+
+# 단, 디렉터리 구조는 유지 (.gitkeep은 추적)
+!audio/.gitkeep
+!transcripts/.gitkeep
+!transcripts/raw/.gitkeep
+!transcripts/clean/.gitkeep
+!output/.gitkeep
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# ===== OS / 에디터 =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
