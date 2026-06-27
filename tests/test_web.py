@@ -12,7 +12,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(webapp._executor, "submit", lambda fn, *a, **k: fn(*a, **k))
     monkeypatch.setattr(webapp, "APP_PASSWORD", "")  # 테스트는 잠금 해제
 
-    def fake_run(audio_path):
+    def fake_run(audio_path, use_claude=True):
         docx = tmp_path / "회의록.docx"
         docx.write_text("dummy", encoding="utf-8")
         return {"minutes_docx": str(docx)}
@@ -42,6 +42,33 @@ def test_rejects_unsupported_extension(client):
     r = client.post("/upload", data=data, content_type="multipart/form-data")
     assert r.status_code == 400
     assert "지원하지 않는" in r.get_data(as_text=True)
+
+
+def test_claude_used_only_when_key_present(tmp_path, monkeypatch):
+    monkeypatch.setattr(webapp._executor, "submit", lambda fn, *a, **k: fn(*a, **k))
+    monkeypatch.setattr(webapp, "APP_PASSWORD", "")
+    seen = {}
+
+    def rec(audio_path, use_claude=True):
+        seen["use_claude"] = use_claude
+        p = tmp_path / "clean.txt"
+        p.write_text("교정본", encoding="utf-8")
+        return {"clean_txt": str(p)}
+
+    monkeypatch.setattr(webapp, "run", rec)
+    c = webapp.app.test_client()
+
+    # 키 없음 → 교정본까지만 (use_claude=False)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    c.post("/upload", data={"audio": (io.BytesIO(b"x"), "a.m4a")},
+           content_type="multipart/form-data")
+    assert seen["use_claude"] is False
+
+    # 키 있음 → 전체 파이프라인 (use_claude=True)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    c.post("/upload", data={"audio": (io.BytesIO(b"x"), "b.m4a")},
+           content_type="multipart/form-data")
+    assert seen["use_claude"] is True
 
 
 def test_password_protects_routes(monkeypatch):

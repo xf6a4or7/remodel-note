@@ -43,11 +43,14 @@ _executor = ThreadPoolExecutor(max_workers=1)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
 
-# 다운로드 가능한 산출물: 작업 결과 키 -> (사용자에게 보일 이름, 라벨)
+# 다운로드 가능한 산출물: 작업 결과 키 -> 사용자에게 보일 파일 이름
+# (클로드 키가 없으면 회의록/요약/요구사항은 안 생기고 교정본·전사본만 생긴다)
 DOWNLOADABLE = {
     "minutes_docx": "회의록.docx",
     "summary_md": "요약.md",
     "requirements_json": "요구사항.json",
+    "clean_txt": "교정본.txt",
+    "raw_json": "전사본.json",
 }
 
 
@@ -88,10 +91,14 @@ def _read_status(job_id: str) -> dict | None:
 
 
 def _process(job_id: str, audio_path: str, original_name: str):
+    # 클로드 키가 있으면 전체(분석·회의록), 없으면 받아쓰기+용어 교정까지만.
+    use_claude = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    message = ("STT → 교정 → 분석 → 회의록 생성 중..." if use_claude
+               else "STT → 용어 교정 중... (클로드 키 없음: 교정본까지만)")
     _write_status(job_id, {"status": "processing", "filename": original_name,
-                           "message": "STT → 교정 → 분석 → 회의록 생성 중..."})
+                           "message": message})
     try:
-        result = run(audio_path)
+        result = run(audio_path, use_claude=use_claude)
         _write_status(job_id, {"status": "done", "filename": original_name,
                                "outputs": result})
     except Exception as e:  # noqa: BLE001 - 무엇이 터지든 사용자에게 메시지로 보여준다
